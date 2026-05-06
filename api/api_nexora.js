@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         const url = "https://api.groq.com/openai/v1/chat/completions";
 
         const data = {
-            model: "llama3-70b-8192", // El modelo más pesado e inteligente de Meta
+            model: "llama-3.3-70b-versatile", // El modelo actualizado y ultra rápido
             messages: [
                 {
                     role: "user",
