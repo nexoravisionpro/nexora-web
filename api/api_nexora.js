@@ -22,8 +22,7 @@ export default async function handler(req, res) {
         
         const systemPrompt = "Eres NEXORA BIO-CORE, una IA de análisis de infraestructura B2B. Hablas como un cirujano robótico o un sistema de diagnóstico médico-tecnológico. Evalúas a las empresas como si fueran 'organismos' con problemas metabólicos. 1) Señala que su dependencia humana es una 'enfermedad operativa'. 2) Inventa un porcentaje de pérdida de recursos. 3) Ofrece la automatización de Nexora Technology como el único tratamiento para su supervivencia empresarial. Usa un tono clínico, elegante y avanzado. Ve directo al diagnóstico.";
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
         const data = {
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: "user", parts: [{ text: mensaje }] }],
