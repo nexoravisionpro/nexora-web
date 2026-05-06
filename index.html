@@ -2,14 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXORA CORE | Artificial Intelligence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXORA CORE | AI Interface</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00f2ff;
             --bg-dark: #050505;
-            --glass: rgba(255, 255, 255, 0.05);
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -18,14 +24,14 @@
             background-color: var(--bg-dark);
             color: white;
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Evita el scroll fuera del dashboard */
+            height: 100vh;
+            height: -webkit-fill-available; /* Ajuste para navegadores móviles */
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            overflow: hidden;
         }
 
-        /* El fondo de neuronas */
         #neuron-canvas {
             position: fixed;
             top: 0;
@@ -33,56 +39,74 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            pointer-events: none; /* Las neuronas no interfieren con clics */
         }
 
         .main-container {
             position: relative;
             z-index: 2;
-            width: 90%;
-            max-width: 900px;
+            width: 95%;
+            max-width: 1000px;
+            height: 90vh; /* Se adapta a la altura de cualquier pantalla */
             background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: clamp(12px, 3vw, 24px); /* Bordes adaptativos */
+            padding: clamp(15px, 4vw, 40px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         .header h1 {
-            font-size: 2rem;
-            letter-spacing: 5px;
+            font-size: clamp(1.2rem, 5vw, 2.2rem);
+            letter-spacing: clamp(2px, 1vw, 6px);
             margin: 0;
             color: var(--primary);
-            text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
         }
 
         .chat-display {
-            height: 350px;
+            flex-grow: 1; /* Ocupa todo el espacio disponible */
             overflow-y: auto;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 12px;
-            padding: 20px;
+            padding: clamp(10px, 3vw, 20px);
             margin-bottom: 20px;
             font-family: 'JetBrains Mono', monospace;
-            line-height: 1.6;
-            border-left: 3px solid var(--primary);
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            line-height: 1.5;
+            border-left: 2px solid var(--primary);
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
         }
 
-        .input-group {
+        .input-area {
+            flex-shrink: 0;
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* En tablets/PC el input y botón van en línea */
+        @media (min-width: 600px) {
+            .input-area {
+                flex-direction: row;
+            }
         }
 
         input {
-            flex: 1;
+            flex-grow: 1;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px 20px;
+            border: 1px solid var(--border);
+            padding: 15px;
             border-radius: 12px;
             color: white;
             font-size: 1rem;
@@ -92,49 +116,43 @@
 
         input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         button {
             background: var(--primary);
             color: black;
             border: none;
-            padding: 0 30px;
+            padding: 15px 25px;
             border-radius: 12px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px var(--primary);
+        button:active {
+            transform: scale(0.95);
         }
 
         .footer {
             text-align: center;
-            margin-top: 25px;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
+            padding-top: 15px;
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
         }
 
         .footer a {
             color: var(--primary);
             text-decoration: none;
             font-weight: bold;
-            transition: 0.3s;
         }
 
-        .footer a:hover {
-            text-decoration: underline;
-            text-shadow: 0 0 5px var(--primary);
+        /* Ocultar canvas en dispositivos muy lentos para ahorrar batería (opcional) */
+        @media (prefers-reduced-motion: reduce) {
+            #neuron-canvas { display: none; }
         }
-
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -144,15 +162,15 @@
     <div class="main-container">
         <div class="header">
             <h1>NEXORA CORE</h1>
-            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">SISTEMA DE ANÁLISIS DE RED NEURONAL</p>
+            <p style="opacity: 0.6; font-size: 0.75rem; margin-top: 5px;">SISTEMA DE REDES NEURONALES V.3.0</p>
         </div>
 
-        <div class="chat-display" id="chatDisplay">
-            > SISTEMA LISTO PARA SECUENCIAR...
+        <div id="chatDisplay" class="chat-display">
+            > NÚCLEO INICIALIZADO... ESPERANDO SECUENCIA.
         </div>
 
-        <div class="input-group">
-            <input type="text" id="userInput" placeholder="Ingresa consulta lógica o síntoma corporativo...">
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Escribe aquí..." autocomplete="off">
             <button onclick="enviarMensaje()">SECUENCIAR</button>
         </div>
 
@@ -162,62 +180,37 @@
     </div>
 
     <script>
-        // LÓGICA DEL CANVAS DE NEURONAS (Partículas)
+        // --- CANVAS ADAPTATIVO ---
         const canvas = document.getElementById('neuron-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
 
-        function initCanvas() {
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            // Re-inicializar partículas según tamaño de pantalla
+            const count = window.innerWidth < 600 ? 40 : 100;
+            particles = Array.from({length: count}, () => new Particle());
         }
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0;
-                if (this.y < 0) this.y = canvas.height;
+                if(this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if(this.y < 0 || this.y > canvas.height) this.speedY *= -1;
             }
             draw() {
                 ctx.fillStyle = '#00f2ff';
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
                 ctx.fill();
-            }
-        }
-
-        function createParticles() {
-            for (let i = 0; i < 100; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function connect() {
-            for (let a = 0; a < particles.length; a++) {
-                for (let b = a; b < particles.length; b++) {
-                    let dx = particles[a].x - particles[b].x;
-                    let dy = particles[a].y - particles[b].y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < 150) {
-                        ctx.strokeStyle = `rgba(0, 242, 255, ${1 - distance/150})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[a].x, particles[a].y);
-                        ctx.lineTo(particles[b].x, particles[b].y);
-                        ctx.stroke();
-                    }
-                }
             }
         }
 
@@ -227,43 +220,58 @@
                 p.update();
                 p.draw();
             });
-            connect();
+            // Conectar partículas (sinapsis)
+            for(let i=0; i<particles.length; i++) {
+                for(let j=i; j<particles.length; j++) {
+                    const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+                    if(dist < 120) {
+                        ctx.strokeStyle = `rgba(0, 242, 255, ${0.2 - dist/600})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
             requestAnimationFrame(animate);
         }
 
-        window.addEventListener('resize', initCanvas);
-        initCanvas();
-        createParticles();
+        window.addEventListener('resize', resize);
+        resize();
         animate();
 
-        // LÓGICA DE LA IA (Ajustada a tu ruta de Vercel)
+        // --- LÓGICA DE COMUNICACIÓN ---
         async function enviarMensaje() {
             const input = document.getElementById('userInput');
             const display = document.getElementById('chatDisplay');
-            const msj = input.value;
+            const msj = input.value.trim();
+            if(!msj) return;
 
-            if (!msj) return;
-
-            display.innerHTML += `<br><br><span style="color:var(--primary)">USUARIO:</span> ${msj}`;
-            display.innerHTML += `<br><br><span style="color:#aaa">NEXORA CORE:</span> Procesando sinapsis...`;
+            display.innerHTML += `<br><br><strong style="color:var(--primary)">>></strong> ${msj}`;
+            display.innerHTML += `<br><em id="loading">Sincronizando red...</em>`;
             input.value = '';
+            display.scrollTop = display.scrollHeight;
 
             try {
                 const response = await fetch('/api/api_nexora', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mensaje_cliente: msj })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({mensaje_cliente: msj})
                 });
-
                 const data = await response.json();
-                display.innerHTML = display.innerHTML.replace("Procesando sinapsis...", "");
+                document.getElementById('loading').remove();
                 display.innerHTML += `<br>${data.respuesta}`;
-                display.scrollTop = display.scrollHeight;
-
-            } catch (error) {
-                display.innerHTML += `<br>ERROR EN LA RED NEURONAL. REINTENTE.`;
+            } catch {
+                document.getElementById('loading').innerText = "ERROR DE CONEXIÓN.";
             }
+            display.scrollTop = display.scrollHeight;
         }
+
+        // Enviar con Enter
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') enviarMensaje();
+        });
     </script>
 </body>
 </html>
