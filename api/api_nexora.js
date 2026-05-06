@@ -20,11 +20,31 @@ export default async function handler(req, res) {
 
         const apiKey = process.env.GEMINI_API_KEY; 
         
-        // BYPASS: Juntamos la personalidad y la pregunta en un solo texto infalible
+        // 1. TÁCTICA DE ESCANEO: Preguntarle a Google qué modelos tiene disponibles para tu llave
+        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+        const listResponse = await fetch(listUrl);
+        const listData = await listResponse.json();
+
+        let modelToUse = "models/gemini-1.5-flash"; // Modelo por defecto
+
+        if (listData.models) {
+            // El cerebro busca automáticamente el primer modelo que sí funcione
+            const validModel = listData.models.find(m => 
+                m.name.includes('gemini') && 
+                m.supportedGenerationMethods && 
+                m.supportedGenerationMethods.includes('generateContent')
+            );
+            
+            if (validModel) {
+                modelToUse = validModel.name; 
+            }
+        }
+
+        // 2. Personalidad de Bio-Core + Mensaje del cliente
         const promptFinal = "Eres NEXORA BIO-CORE, una IA de análisis de infraestructura B2B. Hablas como un cirujano robótico o un sistema de diagnóstico médico-tecnológico. Evalúas a las empresas como si fueran 'organismos' con problemas metabólicos. 1) Señala que su dependencia humana es una 'enfermedad operativa'. 2) Inventa un porcentaje de pérdida de recursos. 3) Ofrece la automatización de Nexora Technology como el único tratamiento. Ve directo al diagnóstico.\n\nSÍNTOMAS DE LA EMPRESA:\n" + mensaje;
 
-        // Utilizamos la versión v1 (100% estable) y el modelo Flash
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // 3. Conexión usando el modelo exacto que Google nos acaba de aprobar
+        const url = `https://generativelanguage.googleapis.com/v1beta/${modelToUse}:generateContent?key=${apiKey}`;
 
         const data = {
             contents: [{ parts: [{ text: promptFinal }] }]
@@ -38,9 +58,8 @@ export default async function handler(req, res) {
 
         const result = await response.json();
 
-        // Si Google se queja de nuevo, ahora nos dirá exactamente por qué
         if (result.error) {
-            return res.status(500).json({ respuesta: "REPORTE DE GOOGLE: " + result.error.message });
+            return res.status(500).json({ respuesta: "ERROR FINAL: " + result.error.message });
         }
 
         const textoFinal = result.candidates[0].content.parts[0].text;
