@@ -2,151 +2,132 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEXORA CORE | AI Interface</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEXORA CORE | Ultra-Responsive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00f2ff;
-            --bg-dark: #050505;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-dark: #030303;
+            --glass: rgba(15, 15, 15, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            color: white;
+            margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff;
             font-family: 'Inter', sans-serif;
-            /* Usamos dvh (Dynamic Viewport Height) para evitar que Safari/Chrome tapen la app */
-            height: 100dvh; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            height: 100dvh; width: 100vw;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: fixed; /* Evita rebotes en iOS */
         }
 
         #neuron-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            pointer-events: none; /* Evita que el fondo bloquee los clics */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; pointer-events: none; opacity: 0.6;
         }
 
+        /* Contenedor Adaptativo Inteligente */
         .main-container {
-            position: relative;
-            z-index: 10;
-            width: 95%;
-            max-width: 1000px;
-            height: 92dvh;
+            position: relative; z-index: 10;
+            width: 100%; height: 100%;
+            max-width: 1200px; /* PC */
+            max-height: 950px;
             background: var(--glass);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            display: flex; flex-direction: column;
             border: 1px solid var(--border);
-            border-radius: clamp(12px, 3vw, 24px);
-            padding: clamp(15px, 4vw, 40px);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            flex-shrink: 0;
-        }
-
-        .header h1 {
-            font-size: clamp(1.2rem, 5vw, 2.2rem);
-            letter-spacing: clamp(2px, 1vw, 6px);
-            margin: 0;
-            color: var(--primary);
-            text-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
-        }
-
-        .chat-display {
-            flex-grow: 1;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
-            padding: clamp(10px, 3vw, 20px);
-            margin-bottom: 20px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            line-height: 1.5;
-            border-left: 2px solid var(--primary);
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) transparent;
-        }
-
-        .input-area {
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        @media (min-width: 600px) {
-            .input-area {
-                flex-direction: row;
+        /* Responsive para Móviles: Pantalla Completa */
+        @media (max-width: 768px) {
+            .main-container {
+                height: 100dvh; border: none; border-radius: 0;
             }
         }
 
-        input {
-            flex-grow: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 12px;
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
+        /* Responsive para PC/Tablet: Ventana Flotante */
+        @media (min-width: 769px) {
+            .main-container {
+                width: 90%; height: 90dvh; border-radius: 28px;
+            }
         }
 
-        input:focus {
-            border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.08);
+        .header {
+            padding: 20px; text-align: center; flex-shrink: 0;
+            border-bottom: 1px solid var(--border);
         }
+        .header h1 {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            letter-spacing: 5px; margin: 0; color: var(--primary);
+            text-transform: uppercase; font-weight: 700;
+        }
+
+        /* Área de Chat con Scroll Suave */
+        .chat-display {
+            flex: 1; overflow-y: auto; padding: clamp(15px, 5vw, 40px);
+            scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        }
+
+        .user-bubble {
+            font-family: 'JetBrains Mono', monospace; color: var(--primary);
+            margin-bottom: 25px; font-size: 0.9rem; opacity: 0.8;
+            padding-left: 10px; border-left: 2px solid var(--primary);
+        }
+
+        /* Formato de Respuesta Pro */
+        .ai-response {
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            line-height: 1.7; color: #e5e5e5; margin-bottom: 40px;
+            max-width: 800px; /* Evita líneas demasiado largas en PC */
+        }
+        .ai-response p { margin-bottom: 1.5rem; }
+        .ai-response strong { color: var(--primary); font-weight: 600; }
+        .ai-response h3 { color: var(--primary); margin-top: 30px; font-size: 1.2rem; }
+        .ai-response ul { padding-left: 20px; margin-bottom: 1.5rem; }
+        .ai-response li { margin-bottom: 10px; }
+
+        /* Barra de Entrada Adaptativa */
+        .input-wrapper {
+            padding: clamp(15px, 3vw, 25px);
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid var(--border);
+            padding-bottom: calc(clamp(15px, 3vw, 25px) + var(--safe-area-inset-bottom));
+        }
+
+        .input-group {
+            display: flex; gap: 12px; max-width: 900px; margin: 0 auto;
+        }
+
+        input {
+            flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+            padding: 16px 20px; border-radius: 16px; color: white;
+            font-size: 16px; /* Evita zoom automático en iOS */
+            outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.1); }
 
         button {
-            background: var(--primary);
-            color: black;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
+            background: var(--primary); color: #000; border: none;
+            padding: 0 25px; border-radius: 16px; font-weight: 700;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+        }
+        button:active { transform: scale(0.95); opacity: 0.8; }
+
+        @media (max-width: 480px) {
+            button span { display: none; } /* Oculta texto en móviles muy pequeños */
+            button::before { content: '→'; font-size: 1.5rem; }
         }
 
-        button:active {
-            transform: scale(0.95);
-        }
+        .footer { font-size: 0.7rem; text-align: center; padding: 10px; opacity: 0.4; }
+        .footer a { color: var(--primary); text-decoration: none; }
 
-        .footer {
-            text-align: center;
-            padding-top: 15px;
-            font-size: clamp(0.7rem, 2vw, 0.85rem);
-            color: rgba(255, 255, 255, 0.4);
-            flex-shrink: 0;
-        }
-
-        .footer a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: bold;
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -154,122 +135,107 @@
     <canvas id="neuron-canvas"></canvas>
 
     <div class="main-container">
-        <div class="header">
+        <header class="header">
             <h1>NEXORA CORE</h1>
-            <p style="opacity: 0.6; font-size: 0.75rem; margin-top: 5px;">SISTEMA DE REDES NEURONALES V.3.0</p>
-        </div>
+        </header>
 
-        <div id="chatDisplay" class="chat-display">
-            > NÚCLEO INICIALIZADO... ESPERANDO SECUENCIA.
-        </div>
+        <main id="chatDisplay" class="chat-display">
+            <div class="ai-response">
+                <p><strong>> NÚCLEO ACTIVO.</strong> Sistema de análisis listo. La información se presentará en bloques optimizados para lectura corporativa.</p>
+            </div>
+        </main>
 
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Escribe aquí..." autocomplete="off">
-            <button onclick="enviarMensaje()">SECUENCIAR</button>
-        </div>
-
-        <div class="footer">
-            DESARROLLADO POR <a href="https://nexoratechnologyc.netlify.app/" target="_blank">NEXORA TECHNOLOGY</a>
-        </div>
+        <footer class="input-wrapper">
+            <div class="input-group">
+                <input type="text" id="userInput" placeholder="Consultar a la red..." autocomplete="off">
+                <button onclick="enviarMensaje()"><span>SECUENCIAR</span></button>
+            </div>
+            <div class="footer">
+                POWERED BY <a href="https://nexora.com.mx" target="_blank">NEXORA TECHNOLOGY</a>
+            </div>
+        </footer>
     </div>
 
     <script>
-        // --- CANVAS ADAPTATIVO FORZADO PARA MÓVIL ---
+        // --- MOTOR DE NEURONAS OPTIMIZADO ---
         const canvas = document.getElementById('neuron-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
 
-        function resize() {
-            // Forzamos la lectura del ancho total del dispositivo
-            canvas.width = window.innerWidth || document.documentElement.clientWidth;
-            canvas.height = window.innerHeight || document.documentElement.clientHeight;
-            
-            // Aumentamos un poco la densidad en celular (60) para que se vea impresionante
-            const count = canvas.width < 600 ? 60 : 120;
-            particles = Array.from({length: count}, () => new Particle());
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const count = canvas.width < 768 ? 40 : 100;
+            particles = Array.from({length: count}, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5
+            }));
         }
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.speedX = (Math.random() - 0.5) * 1.2; // Un poco más rápidas
-                this.speedY = (Math.random() - 0.5) * 1.2;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if(this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if(this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-            }
-            draw() {
-                ctx.fillStyle = '#00f2ff';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
             particles.forEach(p => {
-                p.update();
-                p.draw();
+                p.x += p.vx; p.y += p.vy;
+                if(p.x<0 || p.x>canvas.width) p.vx*=-1;
+                if(p.y<0 || p.y>canvas.height) p.vy*=-1;
+                ctx.fillStyle = '#00f2ff';
+                ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI*2); ctx.fill();
             });
-            // Sinapsis adaptativa
-            const connectDistance = canvas.width < 600 ? 90 : 140; // Distancia de conexión adaptada
-            for(let i=0; i<particles.length; i++) {
-                for(let j=i; j<particles.length; j++) {
-                    const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
-                    if(dist < connectDistance) {
-                        ctx.strokeStyle = `rgba(0, 242, 255, ${0.3 - dist/(connectDistance * 2)})`;
-                        ctx.lineWidth = 0.6;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
+            particles.forEach((p1, i) => {
+                particles.slice(i+1).forEach(p2 => {
+                    const d = Math.hypot(p1.x-p2.x, p1.y-p2.y);
+                    if(d < 150) {
+                        ctx.strokeStyle = `rgba(0, 242, 255, ${0.15 - d/1000})`;
+                        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                     }
-                }
-            }
-            requestAnimationFrame(animate);
+                });
+            });
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', init);
+        init(); draw();
+
+        // --- FORMATEADOR DE TEXTO PROFESIONAL ---
+        function parseResponse(text) {
+            return text
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^\* (.*$)/gim, '<li>$1</li>')
+                .split('\n\n').map(p => {
+                    if(p.includes('<li>')) return `<ul>${p}</ul>`;
+                    return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+                }).join('');
         }
 
-        window.addEventListener('resize', resize);
-        // Inicializamos
-        resize();
-        animate();
-
-        // --- LÓGICA DE COMUNICACIÓN ---
         async function enviarMensaje() {
             const input = document.getElementById('userInput');
             const display = document.getElementById('chatDisplay');
-            const msj = input.value.trim();
-            if(!msj) return;
+            const txt = input.value.trim();
+            if(!txt) return;
 
-            display.innerHTML += `<br><br><strong style="color:var(--primary)">>></strong> ${msj}`;
-            display.innerHTML += `<br><em id="loading">Sincronizando red...</em>`;
+            display.innerHTML += `<div class="user-bubble">>> ${txt}</div>`;
+            const loadId = "L" + Date.now();
+            display.innerHTML += `<div id="${loadId}" class="ai-response"><strong>Sincronizando...</strong></div>`;
             input.value = '';
             display.scrollTop = display.scrollHeight;
 
             try {
-                const response = await fetch('/api/api_nexora', {
+                const r = await fetch('/api/api_nexora', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({mensaje_cliente: msj})
+                    body: JSON.stringify({mensaje_cliente: txt})
                 });
-                const data = await response.json();
-                document.getElementById('loading').remove();
-                display.innerHTML += `<br>${data.respuesta}`;
+                const d = await r.json();
+                document.getElementById(loadId).remove();
+                display.innerHTML += `<div class="ai-response">${parseResponse(d.respuesta)}</div>`;
             } catch {
-                document.getElementById('loading').innerText = "ERROR DE CONEXIÓN.";
+                document.getElementById(loadId).innerHTML = "ERROR DE ENLACE.";
             }
             display.scrollTop = display.scrollHeight;
         }
-
-        // Enviar con Enter
-        document.getElementById('userInput').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') enviarMensaje();
-        });
+        document.getElementById('userInput').addEventListener('keypress', e => e.key==='Enter' && enviarMensaje());
     </script>
 </body>
 </html>
