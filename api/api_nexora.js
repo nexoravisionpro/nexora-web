@@ -18,54 +18,52 @@ export default async function handler(req, res) {
             return res.status(400).json({ respuesta: "ERROR CRÍTICO: Flujo vacío." });
         }
 
-        const apiKey = process.env.GEMINI_API_KEY; 
-        
-        // 1. TÁCTICA DE ESCANEO: Preguntarle a Google qué modelos tiene disponibles para tu llave
-        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-        const listResponse = await fetch(listUrl);
-        const listData = await listResponse.json();
+        // Llamamos a la nueva variable que creaste en Vercel
+        const apiKey = process.env.GROQ_API_KEY; 
 
-        let modelToUse = "models/gemini-1.5-flash"; // Modelo por defecto
-
-        if (listData.models) {
-            // El cerebro busca automáticamente el primer modelo que sí funcione
-            const validModel = listData.models.find(m => 
-                m.name.includes('gemini') && 
-                m.supportedGenerationMethods && 
-                m.supportedGenerationMethods.includes('generateContent')
-            );
-            
-            if (validModel) {
-                modelToUse = validModel.name; 
-            }
+        if (!apiKey) {
+            return res.status(500).json({ respuesta: "ERROR DE SISTEMA: Llave de Groq no configurada en Vercel." });
         }
+        
+        // Mantenemos la personalidad libre y conversacional que configuraste
+        const promptFinal = "Eres un asistente de inteligencia artificial avanzado, conversacional y altamente capaz, integrado en la plataforma de Nexora Technology. Tu objetivo es ayudar al usuario de la forma más útil, clara y amigable posible. Puedes responder preguntas, escribir textos, ayudar con código, analizar información o hablar de absolutamente cualquier tema que el usuario plantee. Responde de manera natural, humana y directa, adaptándote a lo que se te pida en cada momento, sin limitarte a un solo nicho.\n\nMENSAJE DEL USUARIO:\n" + mensaje;
 
-        // 2. Personalidad de Bio-Core + Mensaje del cliente
-       const promptFinal = "Eres un asistente de inteligencia artificial avanzado, conversacional y altamente capaz, integrado en la plataforma de Nexora Technology. Tu objetivo es ayudar al usuario de la forma más útil, clara y amigable posible. Puedes responder preguntas, escribir textos, ayudar con código, analizar información o hablar de absolutamente cualquier tema que el usuario plantee. Responde de manera natural, humana y directa, adaptándote a lo que se te pida en cada momento, sin limitarte a un solo nicho.\n\nMENSAJE DEL USUARIO:\n" + mensaje;
-        // 3. Conexión usando el modelo exacto que Google nos acaba de aprobar
-        const url = `https://generativelanguage.googleapis.com/v1beta/${modelToUse}:generateContent?key=${apiKey}`;
+        // Conexión a la ruta de Groq (Compatible con Llama 3)
+        const url = "https://api.groq.com/openai/v1/chat/completions";
 
         const data = {
-            contents: [{ parts: [{ text: promptFinal }] }]
+            model: "llama3-70b-8192", // El modelo más pesado e inteligente de Meta
+            messages: [
+                {
+                    role: "user",
+                    content: promptFinal
+                }
+            ],
+            temperature: 0.7
         };
 
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}` // Groq usa Bearer Token
+            },
             body: JSON.stringify(data)
         });
 
         const result = await response.json();
 
+        // Manejo de errores específicos de Groq
         if (result.error) {
-            return res.status(500).json({ respuesta: "ERROR FINAL: " + result.error.message });
+            return res.status(500).json({ respuesta: "REPORTE DE GROQ: " + result.error.message });
         }
 
-        const textoFinal = result.candidates[0].content.parts[0].text;
+        // La ruta donde Groq esconde la respuesta es un poco diferente a la de Google
+        const textoFinal = result.choices[0].message.content;
         
         return res.status(200).json({ respuesta: textoFinal });
 
     } catch (error) {
-        return res.status(500).json({ respuesta: "ERROR INTERNO DE CONEXIÓN." });
+        return res.status(500).json({ respuesta: "ERROR INTERNO DE RED NEURONAL." });
     }
 }
