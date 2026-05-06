@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXORA VISION | BIO-CORE SYNTHESIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #000b12;         
+            --panel-bg: #00121c;        
+            --border-color: #00334e;    
+            --bio-cyan: #00f0ff;        
+            --bio-green: #00ff66;       
+            --abyss-black: #000408;     
+            --text-main: #8ab4f8;       
+        }
+
+        body {
+            background-color: var(--bg-dark); color: var(--text-main);
+            font-family: 'Inter', sans-serif; margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; height: 100dvh; 
+            overflow: hidden; transition: background-color 0.8s ease;
+        }
+
+        body.system-awake {
+            background-color: var(--abyss-black);
+            animation: bio-pulse 2s infinite alternate;
+        }
+        body.system-awake .chat-container { border-color: var(--bio-cyan); box-shadow: 0 0 40px rgba(0, 240, 255, 0.1); }
+        body.system-awake .input-area { opacity: 0; pointer-events: none; }
+        body.system-awake .chat-header h1 { color: #ffffff; text-shadow: 0 0 15px var(--bio-cyan); }
+        body.system-awake .chat-header span { color: var(--bio-cyan); }
+
+        .chat-container {
+            width: 100%; max-width: 900px; height: 100%; max-height: 90vh;
+            background-color: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 0; display: flex; flex-direction: column;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5); position: relative; z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        @media (min-width: 768px) {
+            .chat-container { border-radius: 12px; height: 85vh; }
+        }
+
+        .chat-header {
+            padding: 15px 20px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; background: rgba(0, 18, 28, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .chat-header h1 { margin: 0; font-size: clamp(16px, 4vw, 18px); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #fff; transition: 0.3s;}
+        .chat-header h1 span { color: var(--bio-cyan); }
+        .status { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 3vw, 12px); color: var(--bio-green); font-weight: bold;}
+
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; position: relative;}
+        .chat-box::-webkit-scrollbar { display: none; }
+
+        .msg-user {
+            align-self: flex-end; background-color: #001a2c; border: 1px solid var(--border-color); color: #fff;
+            padding: 12px 18px; border-radius: 8px 8px 0 8px; max-width: 85%; font-size: clamp(12px, 3vw, 14px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .fusion-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 45vh; min-height: 280px; position: relative; width: 100%; margin-top: 10px;
+        }
+
+        .neural-brain {
+            width: clamp(100px, 40vw, 180px); position: absolute; top: 10%;
+            animation: cell-throb 1s infinite alternate, cell-dissolve 0.5s forwards 1.8s;
+            z-index: 5; filter: drop-shadow(0 0 15px var(--bio-cyan));
+        }
+        .brain-outline { stroke-dasharray: 300; stroke-dashoffset: 300; animation: drawPath 1.5s ease-out forwards; }
+        .synapse { stroke-dasharray: 150; stroke-dashoffset: 150; animation: drawPath 1s ease-out forwards 0.5s; }
+        .node { animation: pulseNode 0.5s infinite alternate; }
+
+        .bio-membrane {
+            width: 0px; height: 0px; background: var(--bg-dark);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; z-index: 10;
+            animation: cell-open 2s forwards cubic-bezier(0.4, 0, 0.2, 1) 1.8s;
+            box-shadow: inset 0 0 0px var(--bio-cyan);
+        }
+
+        .optical-sensor {
+            width: 100%; height: 100%; background: #000;
+            border-radius: 50%; position: relative; overflow: hidden;
+            box-shadow: inset 0 0 40px var(--bio-cyan), 0 0 20px var(--bio-cyan);
+            border: 2px solid var(--border-color);
+        }
+
+        .synthetic-iris {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 60%; height: 60%; border-radius: 50%;
+            background: radial-gradient(circle, #ffffff 5%, var(--bio-cyan) 30%, #001522 80%);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 10px #000;
+            transition: transform 0.08s ease-out; 
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .lens-pupil {
+            width: 35%; height: 35%; 
+            background: #000; border-radius: 50%; 
+            box-shadow: 0 0 10px var(--bio-cyan), inset 0 0 5px #fff;
+            animation: lens-focus 3s infinite alternate;
+            position: relative;
+        }
+
+        .lens-pupil::after {
+            content: ''; position: absolute; top: 15%; left: 15%;
+            width: 20%; height: 20%; background: #fff; border-radius: 50%; filter: blur(1px);
+        }
+
+        .diagnostic-text {
+            font-family: 'JetBrains Mono', monospace; font-size: clamp(14px, 4vw, 20px); font-weight: 700;
+            color: var(--bio-cyan); text-transform: uppercase; letter-spacing: clamp(3px, 1vw, 6px);
+            text-shadow: 0 0 10px var(--bio-cyan); position: absolute; bottom: 0px;
+            text-align: center; width: 100%; opacity: 1; z-index: 20;
+        }
+
+        .dna-sequence {
+            font-family: 'JetBrains Mono', monospace; font-size: clamp(12px, 3vw, 16px);
+            color: var(--bio-green); text-align: center; letter-spacing: 4px;
+            position: absolute; top: 10%; left: 0; width: 100%; height: 80%; 
+            word-break: break-all; opacity: 0.15; z-index: 1;
+            text-shadow: 0 0 5px var(--bio-green);
+            line-height: 1.5; overflow: hidden; pointer-events: none;
+            display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+        }
+
+        @keyframes bio-pulse {
+            0% { box-shadow: inset 0 0 0px var(--bio-cyan); }
+            100% { box-shadow: inset 0 0 100px rgba(0, 240, 255, 0.05); }
+        }
+
+        @keyframes drawPath { to { stroke-dashoffset: 0; } }
+        @keyframes cell-throb { 0% { transform: scale(0.98); opacity: 0.8; filter: drop-shadow(0 0 5px var(--bio-cyan));} 100% { transform: scale(1.02); opacity: 1; filter: drop-shadow(0 0 20px var(--bio-cyan));} }
+        @keyframes pulseNode { 0% { opacity: 0.3; r: 2; } 100% { opacity: 1; r: 5; fill: var(--bio-green); box-shadow: 0 0 10px var(--bio-green);} }
+        @keyframes cell-dissolve { 100% { transform: scale(1.2); opacity: 0; filter: blur(15px); } }
+
+        @keyframes cell-open {
+            0% { width: 0px; height: 0px; box-shadow: inset 0 0 0px var(--bio-cyan); }
+            50% { width: clamp(150px, 40vw, 220px); height: clamp(150px, 40vw, 220px); box-shadow: inset 0 0 30px var(--bio-cyan); opacity: 0.5;}
+            100% { width: clamp(150px, 40vw, 220px); height: clamp(150px, 40vw, 220px); box-shadow: inset 0 0 50px var(--bio-cyan); opacity: 1; }
+        }
+
+        @keyframes lens-focus { 0% { transform: scale(0.9); } 100% { transform: scale(1.1); } }
+
+        .clinical-report {
+            background-color: #000c14; border: 1px solid var(--border-color); padding: clamp(15px, 4vw, 30px); border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace; color: #fff; font-size: clamp(11px, 3vw, 13px); line-height: 1.6;
+            box-shadow: inset 0 0 30px rgba(0, 240, 255, 0.05); border-left: 4px solid var(--bio-cyan);
+            animation: fade-in 0.8s ease-out forwards;
+        }
+        .clinical-report h3 { margin-top: 0; color: #ffffff; letter-spacing: 2px; text-transform: uppercase; font-size: clamp(14px, 4vw, 18px); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
+        .clinical-report span.highlight { color: var(--bio-cyan); font-weight: bold; text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);}
+        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .input-area { 
+            padding: 15px; border-top: 1px solid var(--border-color); background-color: rgba(0, 18, 28, 0.9); 
+            display: flex; gap: 10px; transition: 0.3s; flex-direction: row; backdrop-filter: blur(5px);
+        }
+        input[type="text"] { 
+            flex: 1; background-color: #00121c; border: 1px solid var(--border-color); color: #fff; 
+            padding: 12px 15px; outline: none; font-family: 'Inter', sans-serif; 
+            font-size: 14px; border-radius: 4px; transition: border 0.3s;
+        }
+        input[type="text"]:focus { border-color: var(--bio-cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);}
+        button { 
+            background-color: var(--bio-cyan); color: #000; border: none; 
+            padding: 0 20px; font-weight: 900; cursor: pointer; transition: 0.3s; 
+            text-transform: uppercase; border-radius: 4px; letter-spacing: 1px;
+        }
+        button:hover { background-color: #fff; box-shadow: 0 0 20px var(--bio-cyan); }
+
+        .nexora-footer {
+            text-align: center; padding: 10px; background-color: #000c14;
+            font-family: 'Inter', sans-serif; font-size: clamp(9px, 2.5vw, 11px);
+            color: #444; letter-spacing: 2px; text-transform: uppercase;
+            border-top: 1px solid var(--border-color); border-radius: 0 0 12px 12px;
+        }
+        .nexora-footer span { color: #5c8ab9; font-weight: 900; transition: 0.3s; cursor: crosshair; }
+        .nexora-footer:hover span { color: var(--bio-cyan); text-shadow: 0 0 10px var(--bio-cyan); }
+
+        @media (max-width: 480px) {
+            .input-area { flex-direction: column; }
+            button { padding: 12px; }
+            .nexora-footer { border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Nexora <span>Bio-Core</span></h1>
+            <div class="status" id="sysStatus">● WAITING_DATA</div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div style="background: #00121c; border: 1px solid var(--border-color); padding: 20px; width: 90%; box-sizing: border-box; position: relative; z-index: 20; border-radius: 6px;">
+                <span style="color: var(--bio-cyan); font-family: 'JetBrains Mono', monospace; font-weight: bold;">> SENSOR ÓPTICO NEXORA INICIADO.</span><br><br>
+                <div style="color: #8ab4f8; font-size: clamp(10px, 3vw, 12px); border-top: 1px solid var(--border-color); padding-top: 15px; letter-spacing: 1px; line-height: 1.5;">
+                    Describa el flujo operativo actual de su empresa para iniciar el escaneo de ineficiencias metabólicas.
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area" id="inputArea">
+            <input type="text" id="userInput" placeholder="Ej. Procesos manuales en ventas..." onkeypress="handleKeyPress(event)">
+            <button onclick="triggerVision()">SECUENCIAR</button>
+        </div>
+
+        <div class="nexora-footer">
+            DESARROLLADO POR <span>NEXORA TECHNOLOGY</span>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sysStatus = document.getElementById('sysStatus');
+        
+        const bioCode = "A T C G 0 1 A C G T 1 0 C G A T 0 1 A A T C G G C T A - SYNTAX_VAL - HXT_99 ";
+
+        function trackSensor(clientX, clientY) {
+            const iris = document.querySelector('.synthetic-iris');
+            const sensor = document.querySelector('.optical-sensor');
+            if (!iris || !sensor) return;
+
+            const rect = sensor.getBoundingClientRect();
+            const eyeX = rect.left + rect.width / 2;
+            const eyeY = rect.top + rect.height / 2;
+
+            const deltaX = clientX - eyeX;
+            const deltaY = clientY - eyeY;
+            const angle = Math.atan2(deltaY, deltaX);
+
+            const maxRadius = rect.width * 0.12; 
+            const distance = Math.min(Math.hypot(deltaX, deltaY) / 10, maxRadius);
+
+            const moveX = Math.cos(angle) * distance;
+            const moveY = Math.sin(angle) * distance;
+
+            iris.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+        }
+
+        document.addEventListener('mousemove', (e) => trackSensor(e.clientX, e.clientY));
+        document.addEventListener('touchmove', (e) => trackSensor(e.touches[0].clientX, e.touches[0].clientY));
+
+        const cellSVG = `
+        <svg class="neural-brain" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path class="brain-outline" d="M50 85 C 20 85, 10 60, 15 40 C 20 20, 40 10, 50 25" fill="none" stroke="var(--bio-cyan)" stroke-width="1.5" />
+            <path class="brain-outline" d="M50 85 C 80 85, 90 60, 85 40 C 80 20, 60 10, 50 25" fill="none" stroke="var(--bio-cyan)" stroke-width="1.5" />
+            <path class="synapse" d="M50 25 L 30 40 L 50 55 L 70 40 Z" fill="none" stroke="#005577" stroke-width="1"/>
+            <path class="synapse" d="M30 40 L 25 60 L 50 75 L 75 60 L 70 40" fill="none" stroke="#005577" stroke-width="1"/>
+            <path class="synapse" d="M50 55 L 50 75" fill="none" stroke="#005577" stroke-width="1"/>
+            <circle class="node" cx="50" cy="25" r="3" fill="var(--bio-cyan)" />
+            <circle class="node" cx="30" cy="40" r="3" fill="var(--bio-cyan)" />
+            <circle class="node" cx="70" cy="40" r="3" fill="var(--bio-cyan)" />
+            <circle class="node" cx="50" cy="55" r="3" fill="var(--bio-cyan)" />
+            <circle class="node" cx="25" cy="60" r="3" fill="var(--bio-cyan)" />
+            <circle class="node" cx="75" cy="60" r="3" fill="var(--bio-cyan)" />
+            <circle class="node" cx="50" cy="75" r="3" fill="var(--bio-cyan)" />
+        </svg>`;
+
+        const fusionHTML = `
+        <div class="fusion-container">
+            ${cellSVG}
+            <div class="dna-sequence" id="dnaStream"></div>
+            <div class="bio-membrane">
+                <div class="optical-sensor">
+                    <div class="synthetic-iris">
+                        <div class="lens-pupil"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="diagnostic-text" id="diagnosticVoice"></div>
+        </div>
+        `;
+
+        async function handleKeyPress(e) { if (e.key === 'Enter') triggerVision(); }
+
+        async function triggerVision() {
+            const text = userInput.value.trim();
+            if (text === '') return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg-user'; userDiv.textContent = text;
+            chatBox.appendChild(userDiv);
+            userInput.value = ''; scrollToBottom();
+
+            document.body.classList.add('system-awake');
+            sysStatus.textContent = "⚠ BIO_SCAN_IN_PROGRESS ⚠";
+            sysStatus.style.color = "var(--bio-cyan)";
+            
+            const aiDiv = document.createElement('div');
+            aiDiv.style.width = "100%";
+            aiDiv.innerHTML = fusionHTML;
+            chatBox.appendChild(aiDiv);
+            scrollToBottom();
+
+            const diagnosticVoice = aiDiv.querySelector('#diagnosticVoice');
+            const dnaStream = aiDiv.querySelector('#dnaStream');
+
+            diagnosticVoice.textContent = "EXTRAYENDO METADATOS...";
+            diagnosticVoice.style.color = "#5c8ab9";
+            diagnosticVoice.style.textShadow = "none";
+
+            setTimeout(() => { 
+                diagnosticVoice.textContent = "ANOMALÍA DETECTADA."; 
+                diagnosticVoice.style.color = "var(--bio-cyan)";
+                diagnosticVoice.style.textShadow = "0 0 15px var(--bio-cyan)";
+                
+                const dnaInterval = setInterval(() => {
+                    let seq = "";
+                    for(let i=0; i<150; i++) seq += bioCode[Math.floor(Math.random() * bioCode.length)];
+                    dnaStream.innerHTML = seq;
+                }, 50);
+
+                setTimeout(() => clearInterval(dnaInterval), 3200);
+            }, 1800);
+            
+            setTimeout(() => { diagnosticVoice.textContent = "SINTETIZANDO DIAGNÓSTICO."; }, 3000);
+
+            let respuestaGemini = "";
+
+            try {
+                const response = await fetch('api_nexora.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mensaje_cliente: text })
+                });
+                
+                const data = await response.json();
+                respuestaGemini = data.respuesta;
+            } catch (error) {
+                // AQUÍ ESTÁ EL NUEVO ERROR IN-UNIVERSE
+                respuestaGemini = "ANOMALÍA DETECTADA EN LA RED DE TRANSMISIÓN. EL ENLACE CON LA MATRIZ BIO-CORE HA SIDO INTERRUMPIDO. INTENTE REINICIAR LA SECUENCIA.";
+            }
+
+            setTimeout(() => {
+                document.body.classList.remove('system-awake');
+                sysStatus.textContent = "● BIO_SYNC_STABLE";
+                sysStatus.style.color = "var(--bio-green)";
+                dnaStream.innerHTML = ""; 
+
+                const formatoLimpio = respuestaGemini.replace(/\n/g, '<br>');
+
+                aiDiv.innerHTML = `
+                <div class="clinical-report">
+                    <h3>Diagnóstico Operativo</h3>
+                    <p style="color: #b0c4de;">${formatoLimpio}</p>
+                    <hr style="border-color: var(--border-color); margin: 15px 0;">
+                    <p style="font-size: clamp(9px, 2.5vw, 11px); color: #5c8ab9; text-align: center;">ANÁLISIS COMPLETADO. RECOMENDAMOS INTEGRACIÓN DE INFRAESTRUCTURA NEXORA.</p>
+                </div>`;
+                scrollToBottom();
+            }, 5000); 
+        }
+
+        function scrollToBottom() { chatBox.scrollTop = chatBox.scrollHeight; }
+    </script>
+</body>
+</html>
