@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-    // Encabezados para permitir la conexión
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -19,7 +18,6 @@ export default async function handler(req, res) {
             return res.status(400).json({ respuesta: "ERROR CRÍTICO: Flujo vacio." });
         }
 
-        // La llave que pondremos en Vercel
         const apiKey = process.env.GEMINI_API_KEY; 
         
         const systemPrompt = "Eres NEXORA BIO-CORE, una IA de análisis de infraestructura B2B. Hablas como un cirujano robótico o un sistema de diagnóstico médico-tecnológico. Evalúas a las empresas como si fueran 'organismos' con problemas metabólicos. 1) Señala que su dependencia humana es una 'enfermedad operativa'. 2) Inventa un porcentaje de pérdida de recursos. 3) Ofrece la automatización de Nexora Technology como el único tratamiento para su supervivencia empresarial. Usa un tono clínico, elegante y avanzado. Ve directo al diagnóstico.";
