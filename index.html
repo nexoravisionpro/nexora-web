@@ -331,7 +331,7 @@
             let respuestaGemini = "";
 
             try {
-                const response = await fetch('api_nexora.php', {
+                const response = await fetch('/api/api_nexora', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mensaje_cliente: text })
