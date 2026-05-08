@@ -3,201 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEXORA CORE | Ultra-Responsive</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>Nexora Core | Enterprise AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* --- VARIABLES DEL SISTEMA --- */
         :root {
-            --primary: #00f2ff;
-            --bg-dark: #030303;
-            --glass: rgba(15, 15, 15, 0.7);
-            --border: rgba(255, 255, 255, 0.08);
-            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+            --cyan-nexora: #00E5FF;
+            --cyan-glow: rgba(0, 229, 255, 0.4);
+            --bg-deep: #030305;
+            --glass-bg: rgba(15, 15, 20, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --text-main: #E2E8F0;
+            --text-muted: #94A3B8;
+            --safe-bottom: env(safe-area-inset-bottom, 15px);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
+        /* --- RESET Y BASE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff;
-            font-family: 'Inter', sans-serif;
-            height: 100dvh; width: 100vw;
+            background-color: var(--bg-deep); color: var(--text-main);
+            font-family: 'Inter', system-ui, sans-serif;
+            height: 100dvh; width: 100vw; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden; position: fixed; /* Evita rebotes en iOS */
         }
 
-        #neuron-canvas {
+        /* --- RED NEURONAL DE FONDO --- */
+        #canvas-network {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; pointer-events: none; opacity: 0.6;
+            z-index: 1; pointer-events: none; opacity: 0.4;
         }
 
-        /* Contenedor Adaptativo Inteligente */
-        .main-container {
+        /* --- CONTENEDOR PRINCIPAL (GLASSMORPHISM PRO) --- */
+        .app-container {
             position: relative; z-index: 10;
-            width: 100%; height: 100%;
-            max-width: 1200px; /* PC */
-            max-height: 950px;
-            background: var(--glass);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            width: 100%; height: 100dvh;
             display: flex; flex-direction: column;
-            border: 1px solid var(--border);
-            box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
         }
 
-        /* Responsive para Móviles: Pantalla Completa */
-        @media (max-width: 768px) {
-            .main-container {
-                height: 100dvh; border: none; border-radius: 0;
+        @media (min-width: 800px) {
+            .app-container {
+                width: 92%; max-width: 1200px; height: 90dvh;
+                border-radius: 24px; border: 1px solid var(--glass-border);
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             }
         }
 
-        /* Responsive para PC/Tablet: Ventana Flotante */
-        @media (min-width: 769px) {
-            .main-container {
-                width: 90%; height: 90dvh; border-radius: 28px;
-            }
+        /* --- CABECERA EJECUTIVA --- */
+        .top-bar {
+            padding: clamp(15px, 3vw, 20px) 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
         }
 
-        .header {
-            padding: 20px; text-align: center; flex-shrink: 0;
-            border-bottom: 1px solid var(--border);
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-logo {
+            width: 32px; height: 32px; background: var(--cyan-nexora);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: #000; font-weight: 800; font-size: 1.2rem;
+            box-shadow: 0 0 15px var(--cyan-glow);
         }
-        .header h1 {
-            font-size: clamp(1rem, 4vw, 1.5rem);
-            letter-spacing: 5px; margin: 0; color: var(--primary);
-            text-transform: uppercase; font-weight: 700;
+        .brand-name h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; margin: 0; }
+        .brand-name span { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+        .status-indicator {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; color: var(--cyan-nexora); font-family: 'JetBrains Mono', monospace;
+        }
+        .status-dot {
+            width: 8px; height: 8px; background: var(--cyan-nexora);
+            border-radius: 50%; box-shadow: 0 0 10px var(--cyan-nexora);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+
+        /* --- ÁREA DE CHAT --- */
+        .chat-area {
+            flex: 1; overflow-y: auto; padding: clamp(20px, 4vw, 40px);
+            display: flex; flex-direction: column; gap: 30px;
+            scroll-behavior: smooth;
+        }
+        .chat-area::-webkit-scrollbar { width: 6px; }
+        .chat-area::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.2); border-radius: 10px; }
+        .chat-area::-webkit-scrollbar-thumb:hover { background: var(--cyan-nexora); }
+
+        /* Burbujas de Mensaje */
+        .message-row { display: flex; width: 100%; animation: slideUp 0.4s ease forwards; opacity: 0; transform: translateY(15px); }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        .message-user { justify-content: flex-end; }
+        .message-ai { justify-content: flex-start; }
+
+        .bubble {
+            max-width: 85%; padding: 18px 24px; font-size: clamp(0.95rem, 2vw, 1.05rem);
+            line-height: 1.6; position: relative;
         }
 
-        /* Área de Chat con Scroll Suave */
-        .chat-display {
-            flex: 1; overflow-y: auto; padding: clamp(15px, 5vw, 40px);
-            scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        .bubble-user {
+            background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 20px 20px 4px 20px; color: #fff;
+            font-family: 'Inter', sans-serif;
         }
 
-        .user-bubble {
-            font-family: 'JetBrains Mono', monospace; color: var(--primary);
-            margin-bottom: 25px; font-size: 0.9rem; opacity: 0.8;
-            padding-left: 10px; border-left: 2px solid var(--primary);
+        .bubble-ai {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border);
+            border-radius: 20px 20px 20px 4px; color: var(--text-main);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        /* Formato de Respuesta Pro */
-        .ai-response {
-            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
-            line-height: 1.7; color: #e5e5e5; margin-bottom: 40px;
-            max-width: 800px; /* Evita líneas demasiado largas en PC */
-        }
-        .ai-response p { margin-bottom: 1.5rem; }
-        .ai-response strong { color: var(--primary); font-weight: 600; }
-        .ai-response h3 { color: var(--primary); margin-top: 30px; font-size: 1.2rem; }
-        .ai-response ul { padding-left: 20px; margin-bottom: 1.5rem; }
-        .ai-response li { margin-bottom: 10px; }
+        /* Formato Profesional IA */
+        .bubble-ai strong { color: var(--cyan-nexora); font-weight: 600; }
+        .bubble-ai h3 { color: var(--cyan-nexora); margin: 20px 0 10px 0; font-size: 1.15rem; text-transform: uppercase; letter-spacing: 1px; }
+        .bubble-ai p { margin-bottom: 12px; }
+        .bubble-ai p:last-child { margin-bottom: 0; }
+        .bubble-ai ul { padding-left: 20px; margin-bottom: 12px; }
+        .bubble-ai li { margin-bottom: 6px; padding-left: 5px; }
+        .bubble-ai li::marker { color: var(--cyan-nexora); }
 
-        /* Barra de Entrada Adaptativa */
+        /* Animación de carga (Typing) */
+        .typing-indicator { display: flex; gap: 5px; padding: 10px 5px; }
+        .typing-dot {
+            width: 6px; height: 6px; background: var(--cyan-nexora); border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* --- ZONA DE ENTRADA (INPUT) --- */
+        .input-section {
+            padding: 20px 25px calc(20px + var(--safe-bottom));
+            background: rgba(0, 0, 0, 0.3); border-top: 1px solid var(--glass-border);
+        }
+
         .input-wrapper {
-            padding: clamp(15px, 3vw, 25px);
-            background: rgba(0, 0, 0, 0.4);
-            border-top: 1px solid var(--border);
-            padding-bottom: calc(clamp(15px, 3vw, 25px) + var(--safe-area-inset-bottom));
-        }
-
-        .input-group {
             display: flex; gap: 12px; max-width: 900px; margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border);
+            border-radius: 18px; padding: 6px; transition: 0.3s;
         }
+        .input-wrapper:focus-within { border-color: rgba(0, 229, 255, 0.4); box-shadow: 0 0 20px rgba(0, 229, 255, 0.1); background: rgba(0,0,0,0.5); }
 
         input {
-            flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
-            padding: 16px 20px; border-radius: 16px; color: white;
-            font-size: 16px; /* Evita zoom automático en iOS */
-            outline: none; transition: 0.3s;
+            flex: 1; background: transparent; border: none; padding: 12px 20px;
+            color: #fff; font-size: 1rem; outline: none; font-family: 'Inter', sans-serif;
         }
-        input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.1); }
+        input::placeholder { color: var(--text-muted); }
 
         button {
-            background: var(--primary); color: #000; border: none;
-            padding: 0 25px; border-radius: 16px; font-weight: 700;
-            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+            background: var(--cyan-nexora); color: #000; border: none;
+            padding: 0 24px; border-radius: 14px; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        button:active { transform: scale(0.95); opacity: 0.8; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px var(--cyan-glow); }
+        button:active { transform: translateY(0); scale: 0.98; }
 
-        @media (max-width: 480px) {
-            button span { display: none; } /* Oculta texto en móviles muy pequeños */
-            button::before { content: '→'; font-size: 1.5rem; }
+        @media (max-width: 600px) {
+            button span { display: none; }
+            button::after { content: '↑'; font-size: 1.4rem; font-weight: 900; }
+            button { padding: 0 20px; border-radius: 12px; }
         }
 
-        .footer { font-size: 0.7rem; text-align: center; padding: 10px; opacity: 0.4; }
-        .footer a { color: var(--primary); text-decoration: none; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .footer-brand {
+            text-align: center; font-size: 0.65rem; color: var(--text-muted);
+            margin-top: 15px; letter-spacing: 2px; font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 <body>
 
-    <canvas id="neuron-canvas"></canvas>
+    <canvas id="canvas-network"></canvas>
 
-    <div class="main-container">
-        <header class="header">
-            <h1>NEXORA CORE</h1>
+    <main class="app-container">
+        <!-- HEADER -->
+        <header class="top-bar">
+            <div class="brand">
+                <div class="brand-logo">N</div>
+                <div class="brand-name">
+                    <h1>NEXORA CORE</h1>
+                    <span>v3.0 // SECURE CONNECTION</span>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span style="display: none; @media(min-width: 600px){display:inline;}">SYSTEM ONLINE</span>
+            </div>
         </header>
 
-        <main id="chatDisplay" class="chat-display">
-            <div class="ai-response">
-                <p><strong>> NÚCLEO ACTIVO.</strong> Sistema de análisis listo. La información se presentará en bloques optimizados para lectura corporativa.</p>
+        <!-- CHAT AREA -->
+        <div id="chatArea" class="chat-area">
+            <div class="message-row message-ai">
+                <div class="bubble bubble-ai">
+                    <strong>> Infraestructura Llama 3.3 Inicializada.</strong><br>
+                    Sistema de consultoría corporativa en línea. ¿En qué puedo optimizar tu empresa hoy?
+                </div>
             </div>
-        </main>
+        </div>
 
-        <footer class="input-wrapper">
-            <div class="input-group">
-                <input type="text" id="userInput" placeholder="Consultar a la red..." autocomplete="off">
-                <button onclick="enviarMensaje()"><span>SECUENCIAR</span></button>
+        <!-- INPUT AREA -->
+        <section class="input-section">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Ingresa tu comando o consulta..." autocomplete="off">
+                <button onclick="enviarMensaje()" id="sendBtn"><span>EJECUTAR</span></button>
             </div>
-            <div class="footer">
-                POWERED BY <a href="https://nexoratechnologyc.netlify.app/" target="_blank">NEXORA TECHNOLOGY</a>
-            </div>
-        </footer>
-    </div>
+            <div class="footer-brand">POWERED BY NEXORA TECHNOLOGY</div>
+        </section>
+    </main>
 
     <script>
-        // --- MOTOR DE NEURONAS OPTIMIZADO ---
-        const canvas = document.getElementById('neuron-canvas');
+        // --- 1. MEMORIA DE SESIÓN ---
+        let memoriaChat = [];
+
+        // --- 2. FONDO DE NEURONAS (ALTO RENDIMIENTO) ---
+        const canvas = document.getElementById('canvas-network');
         const ctx = canvas.getContext('2d');
         let particles = [];
-
-        function init() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const count = canvas.width < 768 ? 40 : 100;
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            let count = canvas.width < 768 ? 35 : 80;
             particles = Array.from({length: count}, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5
+                x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3
             }));
         }
-
-        function draw() {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            particles.forEach(p => {
+        
+        function animateNetwork() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00E5FF';
+            
+            particles.forEach((p, i) => {
                 p.x += p.vx; p.y += p.vy;
-                if(p.x<0 || p.x>canvas.width) p.vx*=-1;
-                if(p.y<0 || p.y>canvas.height) p.vy*=-1;
-                ctx.fillStyle = '#00f2ff';
+                if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
                 ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI*2); ctx.fill();
-            });
-            particles.forEach((p1, i) => {
-                particles.slice(i+1).forEach(p2 => {
-                    const d = Math.hypot(p1.x-p2.x, p1.y-p2.y);
-                    if(d < 150) {
-                        ctx.strokeStyle = `rgba(0, 242, 255, ${0.15 - d/1000})`;
-                        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                
+                for(let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if(dist < 140) {
+                        ctx.strokeStyle = `rgba(0, 229, 255, ${0.15 - dist/1000})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                     }
-                });
+                }
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(animateNetwork);
         }
-        window.addEventListener('resize', init);
-        init(); draw();
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); animateNetwork();
 
-        // --- FORMATEADOR DE TEXTO PROFESIONAL ---
+        // --- 3. FORMATEADOR DE TEXTO PRO ---
         function parseResponse(text) {
             return text
                 .replace(/^### (.*$)/gim, '<h3>$1</h3>')
@@ -209,33 +270,75 @@
                 }).join('');
         }
 
+        // --- 4. MOTOR DE COMUNICACIÓN CON VERCEL ---
         async function enviarMensaje() {
             const input = document.getElementById('userInput');
-            const display = document.getElementById('chatDisplay');
+            const chatArea = document.getElementById('chatArea');
+            const btn = document.getElementById('sendBtn');
             const txt = input.value.trim();
             if(!txt) return;
 
-            display.innerHTML += `<div class="user-bubble">>> ${txt}</div>`;
-            const loadId = "L" + Date.now();
-            display.innerHTML += `<div id="${loadId}" class="ai-response"><strong>Sincronizando...</strong></div>`;
+            // Bloquear input mientras procesa
+            input.disabled = true;
+            btn.style.opacity = '0.5';
+
+            // Guardar en memoria y mostrar burbuja del usuario
+            memoriaChat.push({ role: "user", content: txt });
+            chatArea.innerHTML += `
+                <div class="message-row message-user">
+                    <div class="bubble bubble-user">${txt}</div>
+                </div>`;
+            
+            // Mostrar indicador de "Escribiendo..."
+            const loadId = "load_" + Date.now();
+            chatArea.innerHTML += `
+                <div class="message-row message-ai" id="${loadId}">
+                    <div class="bubble bubble-ai" style="padding: 15px 24px;">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>`;
+            
             input.value = '';
-            display.scrollTop = display.scrollHeight;
+            chatArea.scrollTop = chatArea.scrollHeight;
 
             try {
+                // Enviar memoria completa a tu API de Nexora
                 const r = await fetch('/api/api_nexora', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({mensaje_cliente: txt})
+                    body: JSON.stringify({ historial: memoriaChat })
                 });
+                
                 const d = await r.json();
-                document.getElementById(loadId).remove();
-                display.innerHTML += `<div class="ai-response">${parseResponse(d.respuesta)}</div>`;
-            } catch {
-                document.getElementById(loadId).innerHTML = "ERROR DE ENLACE.";
+                document.getElementById(loadId).remove(); // Quitar animación
+                
+                // Guardar y mostrar respuesta formateada
+                memoriaChat.push({ role: "assistant", content: d.respuesta });
+                chatArea.innerHTML += `
+                    <div class="message-row message-ai">
+                        <div class="bubble bubble-ai">${parseResponse(d.respuesta)}</div>
+                    </div>`;
+
+            } catch (error) {
+                document.getElementById(loadId).innerHTML = `
+                    <div class="bubble bubble-ai" style="color:#ff4444; border-color:#ff4444;">
+                        <strong>ERROR CRÍTICO:</strong> Conexión al servidor Vercel interrumpida.
+                    </div>`;
             }
-            display.scrollTop = display.scrollHeight;
+
+            // Restaurar input
+            input.disabled = false;
+            btn.style.opacity = '1';
+            input.focus();
+            chatArea.scrollTop = chatArea.scrollHeight;
         }
-        document.getElementById('userInput').addEventListener('keypress', e => e.key==='Enter' && enviarMensaje());
+
+        // Permitir enviar con la tecla Enter
+        document.getElementById('userInput').addEventListener('keypress', e => {
+            if(e.key === 'Enter') enviarMensaje();
+        });
     </script>
 </body>
 </html>
